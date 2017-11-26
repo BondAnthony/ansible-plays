@@ -1,0 +1,18 @@
+---
+- hosts: "{{ vms }}"
+
+  tasks:
+    - name: Fetch GitHub SSH Keys
+      uri:
+        url: "https://api.github.com/users/{{ github_user }}/keys"
+        method: GET
+        body: yes
+        body_format: json
+      register: ssh_keys
+
+    - name: Configure SSH Keys
+      authorized_key:
+        user: "{{ user }}"
+        state: present
+        key: "{{ item.key }}"
+      loop: "{{ ssh_keys.json }}"
